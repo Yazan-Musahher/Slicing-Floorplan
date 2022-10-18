@@ -5,3 +5,4 @@
  Assign minimum height and width to a basic rectangle.
  Draw the slicing tree associated with the ﬂoorplan.
  Compact the ﬂoorplan. Draw the compacted ﬂoorplan.***
+ :)
