@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+
 using namespace std;
 //Create Node for lined list data structure
 struct Node{
@@ -9,11 +10,17 @@ struct Node{
 //Create Binary Tree
 struct BinTree{
     int data;
+
+    int height;
+    int width;
     BinTree *left,*right;
 };
 //Create node of the binary tree
 BinTree* newNodes(int value){
     BinTree* newNode = new BinTree();
+    newNode->height = value;
+    newNode->width = value;
+
     newNode->data = value;
     newNode->left = NULL;
     newNode->right = NULL;
@@ -54,10 +61,10 @@ void inorderTraversal(BinTree* root){
     }
 }
 //Function for height of the tree
-int height(BinTree* root){
+int heightOfTree(BinTree* root){
     if(root==NULL)
         return 0;
-    return 1+max(height(root->left),height(root->right));
+    return 1+max(heightOfTree(root->left),heightOfTree(root->right));
 }
 //Function for preorder Traversal
 void preorderTraversal(BinTree* root){
@@ -87,7 +94,7 @@ void printNodes(BinTree* root,int level){
     }
 }
 void levelPrint(BinTree* root){
-    int h = height(root);
+    int h = heightOfTree(root);
     for(int i=1;i<=h;i++){
         printNodes(root,i);
     }
@@ -99,6 +106,40 @@ void addNodeAtFront(Node** head,int value){
     newNode->next = *head;
     *head = newNode;
 }
+
+bool isLeaf(BinTree* root) {
+    if (root == NULL)
+        return false;
+    if (root->left == NULL && root->right == NULL)
+        return true;
+    isLeaf(root->left);
+    isLeaf(root->right);
+}
+
+
+// print bin tree
+void printBT(const std::string& prefix, const BinTree* node, bool isLeft)
+{
+    if( node != nullptr )
+    {
+        std::cout << prefix;
+
+        std::cout << (isLeft ? "|--" : "|__" );
+
+        // print the value of the node
+        std::cout << node->data << std::endl;
+
+        printBT( prefix + (isLeft ? "|   " : "    "), node->left, true);
+        printBT( prefix + (isLeft ? "|   " : "    "), node->right, false);
+    }
+}
+
+void printBT(const BinTree* node)
+{
+    printBT("", node, false);
+}
+
+
 int main(){
     Node* head = NULL;
     addNodeAtFront(&head,10);
@@ -117,10 +158,15 @@ int main(){
     preorderTraversal(root);
     cout<<"\nPostorder Traversal:"<<endl;
     postorderTraversal(root);
-    int h = height(root);
-    cout<<"\nThe height of the tree is: "<<h<<endl;
+
+    cout<<"\nThe height of the tree is: "<<heightOfTree(root)<<endl;
     cout<<"Level Order Traversal:"<<endl;
     levelPrint(root);
+
+    cout << "\n\n\n";
+
+    // pass the root node of your binary tree
+    printBT(root);
 
 
     int index = 0;
@@ -128,7 +174,7 @@ int main(){
     int width = 0;
 
     while (1){
-        cout << "choose" << endl;
+        cout << "\nchoose" << endl;
         cin >> index;
         if (index == 1){
             cout << "Enter height" << endl;
