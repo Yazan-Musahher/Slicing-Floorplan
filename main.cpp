@@ -9,17 +9,13 @@ struct Node{
 };
 //Create Binary Tree
 struct BinTree{
-    int data;
+    char data;
 
-    int height;
-    int width;
     BinTree *left,*right;
 };
 //Create node of the binary tree
 BinTree* newNodes(int value){
     BinTree* newNode = new BinTree();
-    newNode->height = value;
-    newNode->width = value;
 
     newNode->data = value;
     newNode->left = NULL;
@@ -142,14 +138,12 @@ void printBT(const BinTree* node)
 
 int main(){
     Node* head = NULL;
-    addNodeAtFront(&head,10);
-    addNodeAtFront(&head,12);
-    addNodeAtFront(&head,8);
-    addNodeAtFront(&head,7);
-    addNodeAtFront(&head,6);
-    addNodeAtFront(&head,13);
-    addNodeAtFront(&head,14);
-    addNodeAtFront(&head,20);
+    char polishExpr[12] = "DCVBFEHAVVH";
+
+    for (int i = 0; i < 11; ++i) {
+        addNodeAtFront(&head, polishExpr[i]);
+    }
+
     BinTree* root;
     convertLLtoBinTree(head,root);
     cout<<"Inorder Traversal:"<<endl;
