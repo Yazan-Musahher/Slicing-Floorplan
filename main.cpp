@@ -39,13 +39,15 @@ void convertLLtoBinTree(Node* head,BinTree* &root){
         BinTree* parent = q.front();
         q.pop();
         BinTree *leftChild=NULL,*rightChild=NULL;
-        leftChild = newNodes(head->data);
-        q.push(leftChild);
-        head = head->next;
-        if(head!=NULL){
-            rightChild = newNodes(head->data);
-            q.push(rightChild);
+        if (parent->data == 'H' || parent->data == 'V') {
+            leftChild = newNodes(head->data);
+            q.push(leftChild);
             head = head->next;
+            if (head != NULL) {
+                rightChild = newNodes(head->data);
+                q.push(rightChild);
+                head = head->next;
+            }
         }
         parent->left = leftChild;
         parent->right = rightChild;
@@ -108,6 +110,7 @@ void addNodeAtFront(Node** head, char value){
     *head = newNode;
 }
 
+
 bool isLeaf(BinTree* root) {
     if (root == nullptr)
         return false;
@@ -164,15 +167,15 @@ void giveVal(BinTree* root, int height, int width){
 
     }
 
-    if (root->right->right != nullptr || root->right->left != nullptr)
+    if (!isLeaf(root->right))
         root = root->right;
-    else if (root->left->right != nullptr || root->left->left != nullptr)
+    else if (!isLeaf(root->left))
         root = root->left;
     else
         return;
 
-    while (root->left != nullptr || root->right != nullptr && !temp) {
-
+    while (!isLeaf(root->right) && !isLeaf(root->left) && !temp) {
+        temp = false;
         if (root->data == 'H') {
             root->left->h = root->h;
             root->left->w = root->w/2;
@@ -190,9 +193,9 @@ void giveVal(BinTree* root, int height, int width){
 
         }
 
-        if (root->right->right != nullptr || root->right->left != nullptr)
+        if (!isLeaf(root->right))
             root = root->right;
-        else if (root->left->right != nullptr || root->left->left != nullptr)
+        else if (!isLeaf(root->left))
             root = root->left;
         else {
             root = root1->left;
