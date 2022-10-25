@@ -39,7 +39,7 @@ void convertLLtoBinTree(Node* head,BinTree* &root){
         BinTree* parent = q.front();
         q.pop();
         BinTree *leftChild=NULL,*rightChild=NULL;
-        if (parent->data == 'H' || parent->data == 'V') {
+        if (parent->data == '-' || parent->data == '|') {
             leftChild = newNodes(head->data);
             q.push(leftChild);
             head = head->next;
@@ -116,6 +116,8 @@ bool isLeaf(BinTree* root) {
         return false;
     if (root->left == nullptr && root->right == nullptr)
         return true;
+    else
+        return false;
     isLeaf(root->left);
     isLeaf(root->right);
 }
@@ -130,7 +132,11 @@ void printBT(const std::string& prefix, const BinTree* node, bool isLeft)
         std::cout << (isLeft ? "|--" : "|__" );
 
         // print the value of the node
-        std::cout << node->data << std::endl;
+        if (node->data != '-' && node->data != '|'){
+            std::cout << "(" << node->data << " max-h: " << node->h << " max-w: " << node->w << ")" << std::endl;
+        }
+        else
+            std::cout << "(" << node->data << ")" << std::endl;
 
         printBT( prefix + (isLeft ? "|   " : "    "), node->left, true);
         printBT( prefix + (isLeft ? "|   " : "    "), node->right, false);
@@ -148,9 +154,10 @@ void giveVal(BinTree* root, int height, int width){
 
     BinTree* root1 = root;
 
-    bool temp = false;
+    root->h = height;
+    root->w = width;
 
-    if (root->data == 'H') {
+    if (root->data == '-') {
         root->left->h = height;
         root->left->w = width/2;
 
@@ -158,13 +165,12 @@ void giveVal(BinTree* root, int height, int width){
         root->right->w = width/2;
 
     }
-    else if (root->data == 'V') {
+    else if (root->data == '|') {
         root->left->h = height/2;
         root->left->w = width;
 
         root->right->h = height/2;
         root->right->w = width;
-
     }
 
     if (!isLeaf(root->right))
@@ -174,9 +180,8 @@ void giveVal(BinTree* root, int height, int width){
     else
         return;
 
-    while (!isLeaf(root->right) && !isLeaf(root->left) && !temp) {
-        temp = false;
-        if (root->data == 'H') {
+    while (!isLeaf(root)) {
+        if (root->data == '-') {
             root->left->h = root->h;
             root->left->w = root->w/2;
 
@@ -184,7 +189,7 @@ void giveVal(BinTree* root, int height, int width){
             root->right->w = root->w/2;
 
         }
-        else if (root->data == 'V') {
+        else if (root->data == '|') {
             root->left->h = root->h/2;
             root->left->w = root->w;
 
@@ -197,17 +202,45 @@ void giveVal(BinTree* root, int height, int width){
             root = root->right;
         else if (!isLeaf(root->left))
             root = root->left;
-        else {
-            root = root1->left;
-            temp = true;
+        else
+            break;
+    }
+
+    root = root1->left;
+
+    while (!isLeaf(root)) {
+        if (root->data == '-') {
+            root->left->h = root->h;
+            root->left->w = root->w/2;
+
+            root->right->h = root->h;
+            root->right->w = root->w/2;
+
+        }
+        else if (root->data == '|') {
+            root->left->h = root->h/2;
+            root->left->w = root->w;
+
+            root->right->h = root->h/2;
+            root->right->w = root->w;
+
         }
 
+
+        if (!isLeaf(root->left))
+            root = root->left;
+        else if (!isLeaf(root->right))
+            root = root->right;
+        else
+            break;
     }
 };
 
+
+
 int main(){
     Node* head = NULL;
-    char polishExpr[12] = "DCVBFEHAVVH";
+    char polishExpr[12] = "DC|BFE-A||-";
 
     for (int i = 0; i < 11; ++i) {
         addNodeAtFront(&head, polishExpr[i]);
@@ -245,6 +278,7 @@ int main(){
         giveVal(root, height, width);
 
         levelPrint(root);
+        printBT(root);
         //funksjon her
 
         cout << "continue? y/n" << endl;
