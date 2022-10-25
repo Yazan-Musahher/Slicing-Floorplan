@@ -2,7 +2,7 @@
 #include <queue>
 
 using namespace std;
-//Create Node for lined list data structuree
+//Create Node for lined list data structure
 struct Node{
     char data;
     float h,w;
