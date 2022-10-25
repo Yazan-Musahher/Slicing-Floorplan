@@ -4,17 +4,20 @@
 using namespace std;
 //Create Node for lined list data structure
 struct Node{
-    int data;
+    char data;
+    float h,w;
     Node* next;
 };
 //Create Binary Tree
 struct BinTree{
     char data;
 
+    float h,w;
+
     BinTree *left,*right;
 };
 //Create node of the binary tree
-BinTree* newNodes(int value){
+BinTree* newNodes(char value){
     BinTree* newNode = new BinTree();
 
     newNode->data = value;
@@ -83,7 +86,7 @@ void printNodes(BinTree* root,int level){
     if(root == NULL)
         return;
     if(level == 1)
-        cout<<root->data<<" ";
+        cout<<root->data<<": height= "<<root->h << " wight= " << root->w << endl;
     else if(level>1){
         printNodes(root->left,level-1);
         printNodes(root->right,level-1);
@@ -95,23 +98,24 @@ void levelPrint(BinTree* root){
         printNodes(root,i);
     }
 }
+
 //Function that add node to the front of the linked list
-void addNodeAtFront(Node** head,int value){
+void addNodeAtFront(Node** head, char value){
     Node* newNode = new Node;
     newNode->data = value;
+
     newNode->next = *head;
     *head = newNode;
 }
 
 bool isLeaf(BinTree* root) {
-    if (root == NULL)
+    if (root == nullptr)
         return false;
-    if (root->left == NULL && root->right == NULL)
+    if (root->left == nullptr && root->right == nullptr)
         return true;
     isLeaf(root->left);
     isLeaf(root->right);
 }
-
 
 // print bin tree
 void printBT(const std::string& prefix, const BinTree* node, bool isLeft)
@@ -136,6 +140,68 @@ void printBT(const BinTree* node)
 }
 
 
+// denne funker ikke ...
+void giveVal(BinTree* root, int height, int width){
+
+    BinTree* root1 = root;
+
+    bool temp = false;
+
+    if (root->data == 'H') {
+        root->left->h = height;
+        root->left->w = width/2;
+
+        root->right->h = height;
+        root->right->w = width/2;
+
+    }
+    else if (root->data == 'V') {
+        root->left->h = height/2;
+        root->left->w = width;
+
+        root->right->h = height/2;
+        root->right->w = width;
+
+    }
+
+    if (root->right->right != nullptr || root->right->left != nullptr)
+        root = root->right;
+    else if (root->left->right != nullptr || root->left->left != nullptr)
+        root = root->left;
+    else
+        return;
+
+    while (root->left != nullptr || root->right != nullptr && !temp) {
+
+        if (root->data == 'H') {
+            root->left->h = root->h;
+            root->left->w = root->w/2;
+
+            root->right->h = root->h;
+            root->right->w = root->w/2;
+
+        }
+        else if (root->data == 'V') {
+            root->left->h = root->h/2;
+            root->left->w = root->w;
+
+            root->right->h = root->h/2;
+            root->right->w = root->w;
+
+        }
+
+        if (root->right->right != nullptr || root->right->left != nullptr)
+            root = root->right;
+        else if (root->left->right != nullptr || root->left->left != nullptr)
+            root = root->left;
+        else {
+            root = root1->left;
+            temp = true;
+        }
+
+    }
+};
+
 int main(){
     Node* head = NULL;
     char polishExpr[12] = "DCVBFEHAVVH";
@@ -155,7 +221,7 @@ int main(){
 
     cout<<"\nThe height of the tree is: "<<heightOfTree(root)<<endl;
     cout<<"Level Order Traversal:"<<endl;
-    levelPrint(root);
+    //levelPrint(root);
 
     cout << "\n\n\n";
 
@@ -163,25 +229,28 @@ int main(){
     printBT(root);
 
 
-    int index = 0;
+    char index = 'y';
     int height = 0;
     int width = 0;
 
-    while (1){
-        cout << "\nchoose" << endl;
-        cin >> index;
-        if (index == 1){
-            cout << "Enter height" << endl;
-            cin >> height;
-            cout << "Enter width" << endl;
-            cin >> width;
-        }
-        else if (index == 2){
+    while (index != 'n'){
+        cout << "Enter height" << endl;
+        cin >> height;
+        cout << "Enter width" << endl;
+        cin >> width;
 
-        }
-        else if (index == 3){
-            break;
+        giveVal(root, height, width);
+
+        levelPrint(root);
+        //funksjon her
+
+        cout << "continue? y/n" << endl;
+        cin >> index;
+
+
+        while (index != 'y' && index != 'n'){
+            cout << "INCORRECT INPUT! Continue? y/n" << endl;
+            cin >> index;
         }
     }
-
 }
