@@ -12,15 +12,15 @@ enum Type {
 
 class Rectangle {
 public:
-    int minimum_width;
-    int minimum_height;
+    float minimum_width;
+    float minimum_height;
 
     Rectangle() {
         this->minimum_width = 0;
         this->minimum_height = 0;
     }
 
-    Rectangle(int minimum_width, int minimum_height) {
+    Rectangle(float minimum_width, float minimum_height) {
         this->minimum_width = minimum_width;
         this->minimum_height = minimum_height;
     }
@@ -51,7 +51,7 @@ public:
 class BinaryTree {
 public:
     Node *root;
-    unordered_map<int, Rectangle> rectangles;
+    unordered_map<float, Rectangle> rectangles;
 
     BinaryTree(int width, int height) {
 //        this->width = width;e
@@ -124,16 +124,16 @@ public:
         if (current->type == Boundary) {
             return &current->boundary;
         } else if (current->type == Horizontal) {
-            int width = max(left->minimum_width , right->minimum_width);
-            int height = left->minimum_height + right->minimum_height;
+            float width = max(left->minimum_width , right->minimum_width);
+            float height = left->minimum_height + right->minimum_height;
             left->minimum_width = width;
             right->minimum_width = width;
             Rectangle* rectangle = new Rectangle(width, height);
             this->rectangles[current->key] = *rectangle;
             return rectangle;
         } else if (current->type == Vertical) {
-            int width = left->minimum_width + right->minimum_width;
-            int height = max(left->minimum_height, right->minimum_height);
+            float width = left->minimum_width + right->minimum_width;
+            float height = max(left->minimum_height, right->minimum_height);
             left->minimum_height = height;
             right->minimum_height = height;
             Rectangle* rectangle = new Rectangle(width, height);
@@ -158,7 +158,6 @@ void hardPrint(){
             "|     |       B         |\n"
             "|_____|_________________|"<<endl;
 }
-
 
 int main() {
     int width, height;
