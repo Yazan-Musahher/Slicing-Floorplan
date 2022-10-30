@@ -4,64 +4,64 @@
 
 using namespace std;
 
-enum Type {
+enum Data {
     Horizontal,
     Vertical,
-    Boundary,
+    border,
 };
 
 class Rectangle {
 public:
-    int minimum_width;
-    int minimum_height;
+    int minimum_w;
+    int minimum_h;
 
     Rectangle() {
-        this->minimum_width = 0;
-        this->minimum_height = 0;
+        this->minimum_w = 0;
+        this->minimum_h = 0;
     }
 
     Rectangle(int minimum_width, int minimum_height) {
-        this->minimum_width = minimum_width;
-        this->minimum_height = minimum_height;
+        this->minimum_w = minimum_width;
+        this->minimum_h = minimum_height;
     }
 
-    void print() {
-        cout << this->minimum_width << "x" << this->minimum_height;
+    void Print() {
+        cout << this->minimum_w << "x" << this->minimum_h;
     }
 };
 
 class Node {
 public:
-    Type type;
-    Rectangle boundary;
+    Data type;
+    Rectangle border;
 
-    int key;
+    int data;
     Node *left;
     Node *right;
 
-    Node(Type type, Rectangle boundary, int key) {
+    Node(Data type, Rectangle border, int data) {
         this->type = type;
-        this->boundary = boundary;
-        this->key = key;
+        this->border = border;
+        this->data = data;
         this->left = nullptr;
         this->right = nullptr;
     }
 };
 
-class BinaryTree {
+class BinTree {
 public:
     Node *root;
     unordered_map<int, Rectangle> rectangles;
 
-    BinaryTree(int width, int height) {
-//        this->width = width;
+    BinTree(int width, int height) {
+//        this->width = width;e
 //        this->height = height;
         this->root = nullptr;
     }
 
-    void add(Node *base, Type type, Rectangle boundary, int key) {
+    void add(Node *base, Data type, Rectangle boundary, int key) {
         if (root) {
-            if (key <= base->key) {
+            if (key <= base->data) {
                 if (base->left) {
                     add(base->left, type, boundary, key);
                 } else {
@@ -79,37 +79,37 @@ public:
         }
     }
 
-    void addSlice(Type type, int key) {
+    void addSlice(Data type, int key) {
         add(this->root, type, Rectangle(0, 0), key);
     }
 
     void addRectangle(Rectangle rectangle, int key) {
-        add(this->root, Boundary, rectangle, key);
+        add(this->root, border, rectangle, key);
     }
 
-    void printNode(Node *base, int indent) {
+    void printDisplay(Node *base, int indent) {
         if (base) {
             // Print indent
             cout << string(indent, ' ') << "|-> ";
 
-            if (base->type == Boundary)
-                cout << base->boundary.minimum_width << "x" << base->boundary.minimum_height << endl;
+            if (base->type == border)
+                cout << base->border.minimum_w << "x" << base->border.minimum_h << endl;
             if (base->type == Horizontal) {
-                Rectangle rectangle = this->rectangles[base->key];
-                cout << "H: [" << rectangle.minimum_width << "x" << rectangle.minimum_height << "]" << endl;
+                Rectangle rectangle = this->rectangles[base->data];
+                cout << "H: [" << rectangle.minimum_w << "x" << rectangle.minimum_h << "]" << endl;
             }
             if (base->type == Vertical) {
-                Rectangle rectangle = this->rectangles[base->key];
-                cout << "V: [" << rectangle.minimum_width << "x" << rectangle.minimum_height << "]" << endl;
+                Rectangle rectangle = this->rectangles[base->data];
+                cout << "V: [" << rectangle.minimum_w << "x" << rectangle.minimum_h << "]" << endl;
             }
 
-            printNode(base->left, indent + 4);
-            printNode(base->right, indent + 4);
+            printDisplay(base->left, indent + 4);
+            printDisplay(base->right, indent + 4);
         }
     }
 
     void print() {
-        printNode(this->root, 0);
+        printDisplay(this->root, 0);
     }
 
     Rectangle* calculate(Node* current) {
@@ -121,23 +121,23 @@ public:
         Rectangle* left = calculate(current->left);
         Rectangle* right = calculate(current->right);
 
-        if (current->type == Boundary) {
-            return &current->boundary;
+        if (current->type == border) {
+            return &current->border;
         } else if (current->type == Horizontal) {
-            int width = max(left->minimum_width , right->minimum_width);
-            int height = left->minimum_height + right->minimum_height;
-            left->minimum_width = width;
-            right->minimum_width = width;
+            int width = max(left->minimum_w , right->minimum_w);
+            int height = left->minimum_h + right->minimum_h;
+            left->minimum_w = width;
+            right->minimum_w = width;
             Rectangle* rectangle = new Rectangle(width, height);
-            this->rectangles[current->key] = *rectangle;
+            this->rectangles[current->data] = *rectangle;
             return rectangle;
         } else if (current->type == Vertical) {
-            int width = left->minimum_width + right->minimum_width;
-            int height = max(left->minimum_height, right->minimum_height);
-            left->minimum_height = height;
-            right->minimum_height = height;
+            int width = left->minimum_w + right->minimum_w;
+            int height = max(left->minimum_h, right->minimum_h);
+            left->minimum_h = height;
+            right->minimum_h = height;
             Rectangle* rectangle = new Rectangle(width, height);
-            this->rectangles[current->key] = *rectangle;
+            this->rectangles[current->data] = *rectangle;
             return rectangle;
         } else {
             return nullptr;
@@ -145,37 +145,68 @@ public:
     }
 };
 
+void hardPrint(){
+    cout << "_________________________\n"
+            "|        |              |\n"
+            "|   E    |       F      |\n"
+            "|________|______________|\n"
+            "|     |            |    |\n"
+            "|     |            |    |\n"
+            "|     |      C     | D  |\n"
+            "|  A  |            |    |\n"
+            "|     |____________|____|\n"
+            "|     |       B         |\n"
+            "|_____|_________________|"<<endl;
+}
+
+
 int main() {
-    int width;
-    int height;
+    int width, height;
+    char index = 'y';
 
-    cout << "base width:";
-    cin >> width;
-    cout << "base height:";
-    cin >> height;
+    while (index != 'n'){
+        cout << "Enter width" << endl;
+        cin >> width;
+        cout << "Enter height" << endl;
+        cin >> height;
 
-    BinaryTree binary_tree = BinaryTree(width, height);
 
-    // Start
-    binary_tree.addSlice(Horizontal, 50);
+        BinTree binary_tree = BinTree(width, height);
 
-    // Left
-    binary_tree.addSlice(Vertical, 25);
-    binary_tree.addRectangle(Rectangle(2,7), 15);
-    binary_tree.addSlice(Horizontal, 37);
-    binary_tree.addRectangle(Rectangle(7,2), 30);
-    binary_tree.addSlice(Vertical, 42);
-    binary_tree.addRectangle(Rectangle(5,5), 40);
-    binary_tree.addRectangle(Rectangle(3,5), 43);
+        // Root
+        binary_tree.addSlice(Horizontal, 50);
 
-    // Right
-    binary_tree.addSlice(Vertical, 75);
-    binary_tree.addRectangle(Rectangle(4,3), 70);
-    binary_tree.addRectangle(Rectangle(6,3), 80);
+        // Left
+        binary_tree.addSlice(Vertical, 25);
+        binary_tree.addRectangle(Rectangle(width*0.2,height*0.7), 15);
+        binary_tree.addSlice(Horizontal, 37);
+        binary_tree.addRectangle(Rectangle(width*0.7,height*0.2), 30);
+        binary_tree.addSlice(Vertical, 42);
+        binary_tree.addRectangle(Rectangle(width*0.5,height*0.5), 40);
+        binary_tree.addRectangle(Rectangle(width*0.3,height*0.5), 43);
 
-    // Show
-    binary_tree.calculate(binary_tree.root);
-    binary_tree.print();
+        // Right
+        binary_tree.addSlice(Vertical, 75);
+        binary_tree.addRectangle(Rectangle(width*0.4,height*0.3), 70);
+        binary_tree.addRectangle(Rectangle(width*0.6,height*0.3), 80);
+
+        // Print section
+        binary_tree.calculate(binary_tree.root);
+        binary_tree.print();
+        hardPrint();
+
+        // Ask user if he want to continue
+        cout << "continue? y/n" << endl;
+        cin >> index;
+
+
+        while (index != 'y' && index != 'n'){
+            cout << "INCORRECT INPUT! Continue? y/n" << endl;
+            cin >> index;
+        }
+    }
+
+
 
     return 0;
 }
