@@ -1,285 +1,198 @@
 #include <iostream>
-#include <queue>
+#include <vector>
+#include <unordered_map>
 
 using namespace std;
-//Create Node for lined list data structure
-struct Node{
-    char data;
-    float h,w;
-    Node* next;
+
+enum Type {
+    Horizontal,
+    Vertical,
+    Boundary,
 };
-//Create Binary Tree
-struct BinTree{
-    char data;
 
-    float h,w;
+class Rectangle {
+public:
+    int minimum_width;
+    int minimum_height;
 
-    BinTree *left,*right;
-};
-//Create node of the binary tree
-BinTree* newNodes(char value){
-    BinTree* newNode = new BinTree();
-
-    newNode->data = value;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
-}
-//convert Linked list to binary tree
-void convertLLtoBinTree(Node* head,BinTree* &root){
-    if(head == NULL){
-        root = NULL;
-        return;
+    Rectangle() {
+        this->minimum_width = 0;
+        this->minimum_height = 0;
     }
-    queue<BinTree* > q;
-    root = newNodes(head->data);
-    q.push(root);
-    head = head->next;
-    while(head!=NULL){
-        BinTree* parent = q.front();
-        q.pop();
-        BinTree *leftChild=NULL,*rightChild=NULL;
-        if (parent->data == '-' || parent->data == '|') {
-            leftChild = newNodes(head->data);
-            q.push(leftChild);
-            head = head->next;
-            if (head != NULL) {
-                rightChild = newNodes(head->data);
-                q.push(rightChild);
-                head = head->next;
+
+    Rectangle(int minimum_width, int minimum_height) {
+        this->minimum_width = minimum_width;
+        this->minimum_height = minimum_height;
+    }
+
+    void print() {
+        cout << this->minimum_width << "x" << this->minimum_height;
+    }
+};
+
+class Node {
+public:
+    Type type;
+    Rectangle boundary;
+
+    int key;
+    Node *left;
+    Node *right;
+
+    Node(Type type, Rectangle boundary, int key) {
+        this->type = type;
+        this->boundary = boundary;
+        this->key = key;
+        this->left = nullptr;
+        this->right = nullptr;
+    }
+};
+
+class BinaryTree {
+public:
+    Node *root;
+    unordered_map<int, Rectangle> rectangles;
+
+    BinaryTree(int width, int height) {
+//        this->width = width;e
+//        this->height = height;
+        this->root = nullptr;
+    }
+
+    void add(Node *base, Type type, Rectangle boundary, int key) {
+        if (root) {
+            if (key <= base->key) {
+                if (base->left) {
+                    add(base->left, type, boundary, key);
+                } else {
+                    base->left = new Node(type, boundary, key);
+                }
+            } else {
+                if (base->right) {
+                    add(base->right, type, boundary, key);
+                } else {
+                    base->right = new Node(type, boundary, key);
+                }
             }
+        } else {
+            root = new Node(type, boundary, key);
         }
-        parent->left = leftChild;
-        parent->right = rightChild;
     }
-}
-//Function for inorder Traversal
-void inorderTraversal(BinTree* root){
-    if(root!=NULL){
-        inorderTraversal(root->left);
-        cout<<root->data<<" ";
-        inorderTraversal(root->right);
+
+    void addSlice(Type type, int key) {
+        add(this->root, type, Rectangle(0, 0), key);
     }
-}
-//Function for height of the tree
-int heightOfTree(BinTree* root){
-    if(root==NULL)
-        return 0;
-    return 1+max(heightOfTree(root->left),heightOfTree(root->right));
-}
-//Function for preorder Traversal
-void preorderTraversal(BinTree* root){
-    if(root!=NULL){
-        cout<<root->data<<" ";
-        preorderTraversal(root->left);
-        preorderTraversal(root->right);
+
+    void addRectangle(Rectangle rectangle, int key) {
+        add(this->root, Boundary, rectangle, key);
     }
-}
-//Function for postorder Traversal
-void postorderTraversal(BinTree* root){
-    if(root!=NULL){
-        preorderTraversal(root->left);
-        preorderTraversal(root->right);
-        cout<<root->data<<" ";
-    }
-}
-//Function for level order traversal
-void printNodes(BinTree* root,int level){
-    if(root == NULL)
-        return;
-    if(level == 1)
-        cout<<root->data<<": height= "<<root->h << " wight= " << root->w << endl;
-    else if(level>1){
-        printNodes(root->left,level-1);
-        printNodes(root->right,level-1);
-    }
-}
-void levelPrint(BinTree* root){
-    int h = heightOfTree(root);
-    for(int i=1;i<=h;i++){
-        printNodes(root,i);
-    }
-}
 
-//Function that add node to the front of the linked list
-void addNodeAtFront(Node** head, char value){
-    Node* newNode = new Node;
-    newNode->data = value;
+    void printNode(Node *base, int indent) {
+        if (base) {
+            // Print indent
+            cout << string(indent, ' ') << "|-> ";
 
-    newNode->next = *head;
-    *head = newNode;
-}
+            if (base->type == Boundary)
+                cout << base->boundary.minimum_width << "x" << base->boundary.minimum_height << endl;
+            if (base->type == Horizontal) {
+                Rectangle rectangle = this->rectangles[base->key];
+                cout << "H: [" << rectangle.minimum_width << "x" << rectangle.minimum_height << "]" << endl;
+            }
+            if (base->type == Vertical) {
+                Rectangle rectangle = this->rectangles[base->key];
+                cout << "V: [" << rectangle.minimum_width << "x" << rectangle.minimum_height << "]" << endl;
+            }
 
-
-bool isLeaf(BinTree* root) {
-    if (root == nullptr)
-        return false;
-    if (root->left == nullptr && root->right == nullptr)
-        return true;
-    else
-        return false;
-    isLeaf(root->left);
-    isLeaf(root->right);
-}
-
-// print bin tree
-void printBT(const std::string& prefix, const BinTree* node, bool isLeft)
-{
-    if( node != nullptr )
-    {
-        std::cout << prefix;
-
-        std::cout << (isLeft ? "|--" : "|__" );
-
-        // print the value of the node
-        if (node->data != '-' && node->data != '|'){
-            std::cout << "(" << node->data << " max-h: " << node->h << " max-w: " << node->w << ")" << std::endl;
+            printNode(base->left, indent + 4);
+            printNode(base->right, indent + 4);
         }
-        else
-            std::cout << "(" << node->data << ")" << std::endl;
-
-        printBT( prefix + (isLeft ? "|   " : "    "), node->left, true);
-        printBT( prefix + (isLeft ? "|   " : "    "), node->right, false);
-    }
-}
-
-void printBT(const BinTree* node)
-{
-    printBT("", node, false);
-}
-
-
-// denne funker ikke ...
-void giveVal(BinTree* root, int height, int width){
-
-    BinTree* root1 = root;
-
-    root->h = height;
-    root->w = width;
-
-    if (root->data == '-') {
-        root->left->h = height;
-        root->left->w = width/2;
-
-        root->right->h = height;
-        root->right->w = width/2;
-
-    }
-    else if (root->data == '|') {
-        root->left->h = height/2;
-        root->left->w = width;
-
-        root->right->h = height/2;
-        root->right->w = width;
     }
 
-    if (!isLeaf(root->right))
-        root = root->right;
-    else if (!isLeaf(root->left))
-        root = root->left;
-    else
-        return;
-
-    while (!isLeaf(root)) {
-        if (root->data == '-') {
-            root->left->h = root->h;
-            root->left->w = root->w/2;
-
-            root->right->h = root->h;
-            root->right->w = root->w/2;
-
-        }
-        else if (root->data == '|') {
-            root->left->h = root->h/2;
-            root->left->w = root->w;
-
-            root->right->h = root->h/2;
-            root->right->w = root->w;
-
-        }
-
-        if (!isLeaf(root->right))
-            root = root->right;
-        else if (!isLeaf(root->left))
-            root = root->left;
-        else
-            break;
+    void print() {
+        printNode(this->root, 0);
     }
 
-    root = root1->left;
+    Rectangle* calculate(Node* current) {
+        // Check if exists
+        if (current == nullptr)
+            return nullptr;
 
-    while (!isLeaf(root)) {
-        if (root->data == '-') {
-            root->left->h = root->h;
-            root->left->w = root->w/2;
+        // Calculate
+        Rectangle* left = calculate(current->left);
+        Rectangle* right = calculate(current->right);
 
-            root->right->h = root->h;
-            root->right->w = root->w/2;
-
+        if (current->type == Boundary) {
+            return &current->boundary;
+        } else if (current->type == Horizontal) {
+            int width = max(left->minimum_width , right->minimum_width);
+            int height = left->minimum_height + right->minimum_height;
+            left->minimum_width = width;
+            right->minimum_width = width;
+            Rectangle* rectangle = new Rectangle(width, height);
+            this->rectangles[current->key] = *rectangle;
+            return rectangle;
+        } else if (current->type == Vertical) {
+            int width = left->minimum_width + right->minimum_width;
+            int height = max(left->minimum_height, right->minimum_height);
+            left->minimum_height = height;
+            right->minimum_height = height;
+            Rectangle* rectangle = new Rectangle(width, height);
+            this->rectangles[current->key] = *rectangle;
+            return rectangle;
+        } else {
+            return nullptr;
         }
-        else if (root->data == '|') {
-            root->left->h = root->h/2;
-            root->left->w = root->w;
-
-            root->right->h = root->h/2;
-            root->right->w = root->w;
-
-        }
-
-
-        if (!isLeaf(root->left))
-            root = root->left;
-        else if (!isLeaf(root->right))
-            root = root->right;
-        else
-            break;
     }
 };
 
+void hardPrint(){
+    cout << "_________________________\n"
+            "|\t |\t\t|\n"
+            "|   E\t |\tF\t|\n"
+            "|________|______________|\n"
+            "|     |\t\t   |\t|\n"
+            "|     |\t\t   |\t|\n"
+            "|     |\t     C\t   | D\t|\n"
+            "|  A  |\t\t   |\t|\n"
+            "|     |____________|____|\n"
+            "|     |\t\tB\t|\n"
+            "|_____|_________________|"<<endl;
+}
 
-
-int main(){
-    Node* head = NULL;
-    char polishExpr[12] = "DC|BFE-A||-";
-
-    for (int i = 0; i < 11; ++i) {
-        addNodeAtFront(&head, polishExpr[i]);
-    }
-
-    BinTree* root;
-    convertLLtoBinTree(head,root);
-    cout<<"Inorder Traversal:"<<endl;
-    inorderTraversal(root);
-    cout<<"\nPreorder Traversal:"<<endl;
-    preorderTraversal(root);
-    cout<<"\nPostorder Traversal:"<<endl;
-    postorderTraversal(root);
-
-    cout<<"\nThe height of the tree is: "<<heightOfTree(root)<<endl;
-    cout<<"Level Order Traversal:"<<endl;
-    //levelPrint(root);
-
-    cout << "\n\n\n";
-
-    // pass the root node of your binary tree
-    printBT(root);
-
-
+int main() {
+    int width, height;
     char index = 'y';
-    int height = 0;
-    int width = 0;
 
     while (index != 'n'){
-        cout << "Enter height" << endl;
-        cin >> height;
         cout << "Enter width" << endl;
         cin >> width;
+        cout << "Enter height" << endl;
+        cin >> height;
 
-        giveVal(root, height, width);
 
-        levelPrint(root);
-        printBT(root);
-        //funksjon her
+        BinaryTree binary_tree = BinaryTree(width, height);
+
+        // Start
+        binary_tree.addSlice(Horizontal, 50);
+
+        // Left
+        binary_tree.addSlice(Vertical, 25);
+        binary_tree.addRectangle(Rectangle(width*0.2,height*0.7), 15);
+        binary_tree.addSlice(Horizontal, 37);
+        binary_tree.addRectangle(Rectangle(width*0.7,height*0.2), 30);
+        binary_tree.addSlice(Vertical, 42);
+        binary_tree.addRectangle(Rectangle(width*0.5,height*0.5), 40);
+        binary_tree.addRectangle(Rectangle(width*0.3,height*0.5), 43);
+
+        // Right
+        binary_tree.addSlice(Vertical, 75);
+        binary_tree.addRectangle(Rectangle(width*0.4,height*0.3), 70);
+        binary_tree.addRectangle(Rectangle(width*0.6,height*0.3), 80);
+
+        // Show
+        binary_tree.calculate(binary_tree.root);
+        binary_tree.print();
+        hardPrint();
 
         cout << "continue? y/n" << endl;
         cin >> index;
@@ -290,4 +203,8 @@ int main(){
             cin >> index;
         }
     }
+
+
+
+    return 0;
 }
