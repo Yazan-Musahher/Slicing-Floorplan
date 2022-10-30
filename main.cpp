@@ -1,3 +1,7 @@
+// assignment for week 9
+// 9 week group 2
+// Helene Abildsnes, Mohamad Yazan Musahher, Oda Stokkeland Opsanger and Signe Øy
+
 #include <iostream>
 #include <vector>
 #include <unordered_map>
